@@ -1,0 +1,12 @@
+#+TITLE: flycheck-eglot
+
+* Premise
+
+
+* Installation
+
+
+* Configuration
+
+
+* Some sources of inspiration
