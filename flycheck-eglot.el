@@ -39,7 +39,11 @@
 
 
 (defvar-local flycheck-eglot--current-errors nil)
+(defvar-local flycheck-eglot-exclusive t
+  "Is checker exclusive, or in chain of over checkers.")
 
+(defvar-local flycheck-eglot-enabled t
+  "Is flycheck-eglot enabled in current buffer.")
 
 (defun flycheck-eglot--start (checker callback)
   "Start function for generic checker definition."
@@ -85,6 +89,44 @@ Report function for `eglot-flymake-backend'."
   :start #'flycheck-eglot--start
   :predicate #'flycheck-eglot--eglot-available-p
   :modes '(prog-mode text-mode))
+
+(defun flycheck-eglot--setup ()
+  "Setup flycheck-eglot."
+  (when (flycheck-eglot--eglot-available-p)
+    (add-to-list 'flycheck-checkers 'eglot-check)
+    (setq flycheck--automatically-disabled-checkers
+          (remove 'eglot-check
+                  flycheck--automatically-disabled-checkers))
+
+    (let ((current-checker (flycheck-get-checker-for-buffer)))
+      (flycheck-add-mode 'eglot-check major-mode)
+
+      (cond ((or flycheck-eglot-exclusive
+                 (null current-checker))
+             (setq flycheck-checker 'eglot-check))
+
+            (t (unless (equal current-checker 'eglot-check)
+                 (flycheck-add-next-checker 'eglot-check current-checker)))))
+
+    (eglot-flymake-backend #'flycheck-eglot--report-eglot-diagnostics)
+
+    (flymake-mode -1)
+    (flycheck-mode 1)))
+
+
+(defun flycheck-eglot--teardown ()
+  "Teardown flycheck-eglot."
+  (when (flycheck-eglot--eglot-available-p)
+    (eglot-flymake-backend #'ignore)
+    (setq flycheck-checker nil)
+    (setq flycheck--automatically-enabled-checkers
+          (remove 'eglot-check
+                  flycheck--automatically-enabled-checkers))
+    (setq flycheck--automatically-disabled-checkers
+          (cl-adjoin 'eglot-check
+                     flycheck--automatically-disabled-checkers))
+    (setq flycheck-eglot--current-errors nil)
+    (flycheck-buffer-deferred)))
 
 
 (provide 'flycheck-eglot)
