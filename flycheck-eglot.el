@@ -139,5 +139,22 @@ Report function for `eglot-flymake-backend'."
     (flycheck-eglot--teardown)))
 
 
+;;;###autoload
+(define-globalized-minor-mode global-flycheck-eglot-mode
+  flycheck-eglot-mode
+  (lambda ()
+    (when (flycheck-eglot--eglot-available-p)
+      (flycheck-eglot-mode 1)))
+  :group 'flycheck-eglot
+
+  (cond (global-flycheck-eglot-mode
+         (add-hook 'eglot-managed-mode-hook #'flycheck-eglot-mode))
+        (t
+         (remove-hook 'eglot-managed-mode-hook #'flycheck-eglot-mode)
+         (setq flycheck-checkers
+               (remove 'eglot-check
+                       flycheck-checkers)))))
+
+
 (provide 'flycheck-eglot)
 ;;; flycheck-eglot.el ends here
