@@ -129,5 +129,15 @@ Report function for `eglot-flymake-backend'."
     (flycheck-buffer-deferred)))
 
 
+;;;###autoload
+(define-minor-mode flycheck-eglot-mode
+  "Minor mode for using Flycheck with Eglot."
+  :init-value nil
+  :lighter nil
+  (if flycheck-eglot-mode
+      (flycheck-eglot--setup)
+    (flycheck-eglot--teardown)))
+
+
 (provide 'flycheck-eglot)
 ;;; flycheck-eglot.el ends here
