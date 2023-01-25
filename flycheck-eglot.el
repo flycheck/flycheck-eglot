@@ -42,8 +42,6 @@
 (defvar-local flycheck-eglot-exclusive t
   "Is checker exclusive, or in chain of over checkers.")
 
-(defvar-local flycheck-eglot-enabled t
-  "Is flycheck-eglot enabled in current buffer.")
 
 (defun flycheck-eglot--start (checker callback)
   "Start function for generic checker definition."
