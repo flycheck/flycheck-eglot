@@ -79,7 +79,8 @@ Report function for `eglot-flymake-backend'."
 
 (defun flycheck-eglot--eglot-available-p ()
   "Is Eglot available."
-  (bound-and-true-p eglot--managed-mode))
+  (and (fboundp 'eglot-managed-p)
+       (eglot-managed-p)))
 
 
 (flycheck-define-generic-checker 'eglot-check
