@@ -38,9 +38,14 @@
 (require 'eglot)
 
 
+(defcustom flycheck-eglot-exclusive t
+  "Is flycheck-eglot checker exclusive or chained to other flycheck checkers."
+  :type 'boolean
+  :local t
+  :group 'flycheck-eglot)
+
+
 (defvar-local flycheck-eglot--current-errors nil)
-(defvar-local flycheck-eglot-exclusive t
-  "Is checker exclusive, or in chain of over checkers.")
 
 
 (defun flycheck-eglot--start (checker callback)
