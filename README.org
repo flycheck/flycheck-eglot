@@ -1,12 +1,13 @@
 #+TITLE: flycheck-eglot
 
-* Premise
-
 
 * Installation
 
 
-* Configuration
+* Configuration and Use
 
 
-* Some sources of inspiration
+* Why this package?
+
+
+* Sources of inspiration
