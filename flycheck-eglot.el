@@ -39,7 +39,7 @@
 
 
 (defcustom flycheck-eglot-exclusive t
-  "Is flycheck-eglot checker exclusive or chained to other flycheck checkers."
+  "Is the flycheck-eglot checker exclusive or in a chain of others."
   :type 'boolean
   :local t
   :group 'flycheck-eglot)
@@ -49,7 +49,9 @@
 
 
 (defun flycheck-eglot--start (checker callback)
-  "Start function for generic checker definition."
+  "Start function for generic checker definition.
+CHECKER is the current checker (assuming eglot-check).
+CALLBACK is a callback function provided by Flycheck."
   (when (equal checker 'eglot-check)
     (funcall callback
              'finished
@@ -57,11 +59,11 @@
 
 
 (defun flycheck-eglot--report-eglot-diagnostics (diags &rest _)
-  "Get Eglot diagnostics DIAGS, prepare it and pass to Flycheck.
-Report function for `eglot-flymake-backend'."
+  "Report function for the `eglot-flymake-backend'.
+DIAGS is the Eglot diagnostics list in Flymake format."
   (cl-flet
       ((diag-to-err (diag)
-                    "Flymake diagnostics to flycheck errors."
+                    ;; Translate flymake to flycheck
                     (with-current-buffer (flymake--diag-locus diag)
                       (flycheck-error-new-at-pos
                        (flymake--diag-beg diag) ; POS
@@ -78,7 +80,6 @@ Report function for `eglot-flymake-backend'."
 
     (setq flycheck-eglot--current-errors
           (mapcar #'diag-to-err diags))
-
     (flycheck-buffer-automatically '(idle-change new-line))))
 
 
@@ -89,10 +90,11 @@ Report function for `eglot-flymake-backend'."
 
 
 (flycheck-define-generic-checker 'eglot-check
-  "Report Eglot diagnostics with Flycheck."
+  "Reports Eglot-provided diagnostics with Flycheck."
   :start #'flycheck-eglot--start
   :predicate #'flycheck-eglot--eglot-available-p
   :modes '(prog-mode text-mode))
+
 
 (defun flycheck-eglot--setup ()
   "Setup flycheck-eglot."
@@ -101,19 +103,14 @@ Report function for `eglot-flymake-backend'."
     (setq flycheck--automatically-disabled-checkers
           (remove 'eglot-check
                   flycheck--automatically-disabled-checkers))
-
     (let ((current-checker (flycheck-get-checker-for-buffer)))
       (flycheck-add-mode 'eglot-check major-mode)
-
       (cond ((or flycheck-eglot-exclusive
                  (null current-checker))
              (setq flycheck-checker 'eglot-check))
-
             (t (unless (equal current-checker 'eglot-check)
                  (flycheck-add-next-checker 'eglot-check current-checker)))))
-
     (eglot-flymake-backend #'flycheck-eglot--report-eglot-diagnostics)
-
     (flymake-mode -1)
     (flycheck-mode 1)))
 
@@ -150,7 +147,6 @@ Report function for `eglot-flymake-backend'."
     (when (flycheck-eglot--eglot-available-p)
       (flycheck-eglot-mode 1)))
   :group 'flycheck-eglot
-
   (cond (global-flycheck-eglot-mode
          (add-hook 'eglot-managed-mode-hook #'flycheck-eglot-mode))
         (t
