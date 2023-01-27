@@ -105,11 +105,11 @@ DIAGS is the Eglot diagnostics list in Flymake format."
                   flycheck--automatically-disabled-checkers))
     (let ((current-checker (flycheck-get-checker-for-buffer)))
       (flycheck-add-mode 'eglot-check major-mode)
-      (cond ((or flycheck-eglot-exclusive
-                 (null current-checker))
-             (setq flycheck-checker 'eglot-check))
-            (t (unless (equal current-checker 'eglot-check)
-                 (flycheck-add-next-checker 'eglot-check current-checker)))))
+      (if (or flycheck-eglot-exclusive
+              (null current-checker))
+          (setq flycheck-checker 'eglot-check)
+        (unless (equal current-checker 'eglot-check)
+          (flycheck-add-next-checker 'eglot-check current-checker))))
     (eglot-flymake-backend #'flycheck-eglot--report-eglot-diagnostics)
     (flymake-mode -1)
     (flycheck-mode 1)))
@@ -147,13 +147,12 @@ DIAGS is the Eglot diagnostics list in Flymake format."
     (when (flycheck-eglot--eglot-available-p)
       (flycheck-eglot-mode 1)))
   :group 'flycheck-eglot
-  (cond (global-flycheck-eglot-mode
-         (add-hook 'eglot-managed-mode-hook #'flycheck-eglot-mode))
-        (t
-         (remove-hook 'eglot-managed-mode-hook #'flycheck-eglot-mode)
-         (setq flycheck-checkers
-               (remove 'eglot-check
-                       flycheck-checkers)))))
+  (if global-flycheck-eglot-mode
+      (add-hook 'eglot-managed-mode-hook #'flycheck-eglot-mode)
+    (remove-hook 'eglot-managed-mode-hook #'flycheck-eglot-mode)
+    (setq flycheck-checkers
+          (remove 'eglot-check
+                  flycheck-checkers))))
 
 
 (provide 'flycheck-eglot)
