@@ -52,7 +52,7 @@
   "Start function for generic checker definition.
 CHECKER is the current checker (assuming eglot-check).
 CALLBACK is a callback function provided by Flycheck."
-  (when (equal checker 'eglot-check)
+  (when (eq checker 'eglot-check)
     (funcall callback
              'finished
              flycheck-eglot--current-errors)))
