@@ -7,7 +7,7 @@
 ;; Version: 0.1
 ;; Package-Requires: ((emacs "28.1") (eglot "1.9") (flycheck "33-cvs"))
 ;; URL: https://github.com/intramurz/flycheck-eglot
-;; Keywords: tools, flycheck, eglot
+;; Keywords: convenience language tools
 
 
 ;; This file is not part of GNU Emacs
