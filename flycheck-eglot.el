@@ -38,6 +38,12 @@
 (require 'eglot)
 
 
+(defgroup flycheck-eglot nil
+  "Flycheck-Eglot compatibility customizations."
+  :prefix "flycheck-eglot-"
+  :group 'flycheck)
+
+
 (defcustom flycheck-eglot-exclusive t
   "Is the flycheck-eglot checker exclusive or in a chain of others."
   :type 'boolean
