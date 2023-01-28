@@ -38,6 +38,12 @@
 (require 'eglot)
 
 
+(defgroup flycheck-eglot nil
+  "Flycheck-Eglot compatibility customizations."
+  :prefix "flycheck-eglot-"
+  :group 'flycheck)
+
+
 (defcustom flycheck-eglot-exclusive t
   "Is the flycheck-eglot checker exclusive or in a chain of others."
   :type 'boolean
@@ -52,7 +58,7 @@
   "Start function for generic checker definition.
 CHECKER is the current checker (assuming eglot-check).
 CALLBACK is a callback function provided by Flycheck."
-  (when (equal checker 'eglot-check)
+  (when (eq checker 'eglot-check)
     (funcall callback
              'finished
              flycheck-eglot--current-errors)))
