@@ -124,7 +124,7 @@ DIAGS is the Eglot diagnostics list in Flymake format."
       (if (or flycheck-eglot-exclusive
               (null current-checker))
           (setq flycheck-checker 'eglot-check)
-        (unless (equal current-checker 'eglot-check)
+        (unless (eq current-checker 'eglot-check)
           (flycheck-add-next-checker 'eglot-check current-checker))))
     (eglot-flymake-backend #'flycheck-eglot--report-eglot-diagnostics)
     (flymake-mode -1)
