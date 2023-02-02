@@ -90,9 +90,18 @@ Flycheck-Eglot mode automatically enables Flycheck and disables Flymake.
 * Why this package?
 
 When I decided to try another LSP client for Emacs, I discovered that the Eglot out of the box supports only Flymake, but not Flycheck (which I did not intend to change - I consider it more convenient and rich in features). There was a need to somehow connect the Eglot and Flycheck. Searching for a ready-made solution in [[https://melpa.org][MELPA]] and [[https://elpa.gnu.org/][ELPA]] did not give any results, however, I found out that the popular [[https://github.com/doomemacs/doomemacs][Doom Emacs]] has a similar feature. Not being a Doom Emacs user, I trivially adapted the code from there (as some other users have already done in this case). Testing this solution revealed a nasty bug in it: when editing, the display of errors was one step behind the current changes, catching up with them only when a new line was entered or the buffer was saved. In addition, it behaved incorrectly when reverting the buffer. After some experimentation and reading the Eglot code, these bugs were fixed.
-Along the way, I've added a few changes to make it easier to use, and slightly refactored the code to my liking. As a result, I came to transform the feature into a more standard form for Emacs, so that a regular user can install and configure it in the most simple way, that is, a minor mode in the package.
+Along the way, I've added a few changes to make it easier to use, and slightly refactored the code to my liking. As a result, I came to rewrite the feature in a more standard form for Emacs, so that a regular user can install and configure it in the most simple way, that is, a minor mode in the package.
 
 
 * Sources of inspiration
 
 This software has its origin in [[https://github.com/doomemacs/doomemacs/blob/develop/modules/tools/lsp/autoload/flycheck-eglot.el][this piece]] of Doom Emacs code with a similar purpose. Many thanks to its authors for their efforts.
+
+I suppose my contribution can be brought back into the Doom Emacs (if deemed useful) by adding something like
+
+#+begin_src elisp
+    (package! flycheck-eglot
+              :recipe (:host github :repo "intramurz/flycheck-eglot"))
+#+end_src
+
+to the its =lisp/packages.el= file (once again, I'm not a Doom Emacs user).
