@@ -98,16 +98,16 @@ DIAGS is the Eglot diagnostics list in Flymake format."
   (cl-flet
       ((diag-to-err (diag)
                     ;; Translate flymake to flycheck
-                    (with-current-buffer (flymake--diag-locus diag)
+                    (with-current-buffer (flymake-diagnostic-buffer diag)
                       (flycheck-error-new-at-pos
-                       (flymake--diag-beg diag) ; POS
-                       (pcase (flymake--diag-type diag) ; LEVEL
+                       (flymake-diagnostic-beg diag) ; POS
+                       (pcase (flymake-diagnostic-type diag) ; LEVEL
                          ('eglot-note 'info)
                          ('eglot-warning 'warning)
                          ('eglot-error 'error)
                          (_ (error "Unknown diagnostic type: %S" diag)))
-                       (flymake--diag-text diag)  ; MESSAGE
-                       :end-pos (flymake--diag-end diag)
+                       (flymake-diagnostic-text diag)  ; MESSAGE
+                       :end-pos (flymake-diagnostic-end diag)
                        :checker 'eglot-check
                        :buffer (current-buffer)
                        :filename (buffer-file-name)))))
