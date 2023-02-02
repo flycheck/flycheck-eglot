@@ -25,6 +25,23 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+;; This software has its origin in a piece of Doom Emacs code
+;; which was distributed under the following terms:
+
+;;  The MIT License (MIT)
+
+;;  Copyright (c) 2014-2022 Henrik Lissner.
+
+;;  Permission is hereby granted, free of charge, to any person obtaining
+;;  a copy of this software and associated documentation files (the "Software"),
+;;  to deal in the Software without restriction, including
+;;  without limitation the rights to use, copy, modify, merge, publish,
+;;  distribute, sublicense, and/or sell copies of the Software, and to
+;;  permit persons to whom the Software is furnished to do so, subject to
+;;  the following conditions:
+
+;;  The above copyright notice and this permission notice shall be
+;;  included in all copies or substantial portions of the Software.
 
 ;;; Commentary:
 
@@ -32,6 +49,7 @@
 ;;
 ;; You just need to enable `global-flycheck-eglot-mode'.
 ;; Put the following in your init file:
+;;
 ;;      (require 'flycheck-eglot)
 ;;      (global-flycheck-eglot-mode 1)
 ;;
