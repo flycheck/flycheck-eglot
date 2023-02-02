@@ -134,9 +134,9 @@ DIAGS is the Eglot diagnostics list in Flymake format."
   "Setup flycheck-eglot."
   (when (flycheck-eglot--eglot-available-p)
     (add-to-list 'flycheck-checkers 'eglot-check)
-    (setq flycheck--automatically-disabled-checkers
+    (setq flycheck-disabled-checkers
           (remove 'eglot-check
-                  flycheck--automatically-disabled-checkers))
+                  flycheck-disabled-checkers))
     (let ((current-checker (flycheck-get-checker-for-buffer)))
       (flycheck-add-mode 'eglot-check major-mode)
       (if (or flycheck-eglot-exclusive
@@ -154,12 +154,9 @@ DIAGS is the Eglot diagnostics list in Flymake format."
   (when (flycheck-eglot--eglot-available-p)
     (eglot-flymake-backend #'ignore)
     (setq flycheck-checker nil)
-    (setq flycheck--automatically-enabled-checkers
-          (remove 'eglot-check
-                  flycheck--automatically-enabled-checkers))
-    (setq flycheck--automatically-disabled-checkers
+    (setq flycheck-disabled-checkers
           (cl-adjoin 'eglot-check
-                     flycheck--automatically-disabled-checkers))
+                     flycheck-disabled-checkers))
     (setq flycheck-eglot--current-errors nil)
     (flycheck-buffer-deferred)))
 
