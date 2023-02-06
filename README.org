@@ -1,5 +1,6 @@
 #+TITLE: flycheck-eglot
 #+AUTHOR: Sergey Firsov <intramurz@gmail.com>
+[[https://melpa.org/#/flycheck-eglot][file:https://melpa.org/packages/flycheck-eglot-badge.svg]]
 
 A simple "glue" minor mode that allows [[https://www.flycheck.org/][Flycheck]] and [[https://github.com/joaotavora/eglot][Eglot]] to work together. Thus, the Flycheck frontend can display the results of syntactic checks performed by the LSP server.
 
@@ -11,13 +12,19 @@ You can simply copy =flycheck-eglot.el= to your local filesystem, and add the pa
 
 ** Quelpa
 
-A more advanced (and preferred) way is with a package management tool that can install directly from Github repositories, such as [[https://github.com/quelpa/quelpa][quelpa]]. Evaluate this or add to your init file:
+A more advanced way is with a package management tool that can install directly from Github repositories, such as [[https://github.com/quelpa/quelpa][quelpa]]. Evaluate this or add to your init file:
 
 #+begin_src elisp
       (quelpa '(flycheck-eglot :repo "intramurz/flycheck-eglot"
                                :fetcher github
                                :upgrade t))
 #+end_src
+
+
+** MELPA (recommended)
+
+You can install this package from [[https://melpa.org][MELPA]] manually using the standard package manager ~M-x package-install RET flycheck-eglot RET~ or install and configure it [[Using use-package][using use-package]].
+
 
 * Configuration and Use
 
@@ -36,24 +43,25 @@ You just need to put the following in the init file:
   (global-flycheck-eglot-mode 1)
 #+end_src
 
-*** Using [[https://github.com/jwiegley/use-package][use-package]]
+*** Using use-package
 
-Most recommended setup:
+Most recommended setup with [[https://github.com/jwiegley/use-package][use-package]]:
 
 #+begin_src elisp
-            (use-package flycheck-eglot
-             :after (flycheck eglot)
-             :config
-             (global-flycheck-eglot-mode 1))
+  (use-package flycheck-eglot
+    :ensure t
+    :after (flycheck eglot)
+    :config
+    (global-flycheck-eglot-mode 1))
 #+end_src
 
 You can also enable Flycheck-Eglot mode only for certain major modes. For example:
 
 #+begin_src elisp
-      (use-package python-mode
-        :hook (python-mode . (lambda ()
-                               (eglot-ensure)
-                               (flycheck-eglot-mode 1))))
+  (use-package python-mode
+    :hook (python-mode . (lambda ()
+                           (eglot-ensure)
+                           (flycheck-eglot-mode 1))))
 #+end_src
 
 
@@ -62,20 +70,21 @@ You can also enable Flycheck-Eglot mode only for certain major modes. For exampl
 By default, the Flycheck-Eglot considers the Eglot to be the only provider of syntax checks. The LSP-mode with Flycheck and the Eglot with Flymake behave in a similar way. It is assumed that all suitable checkers are plugged in the LSP server. In most cases, this is what you need. However, in case you need to use an Eglot checker in parallel with regular Flycheck checkers, there is a variable ~flycheck-eglot-exclusive~ that controls this. You can override it system wide:
 
 #+begin_src elisp
-      (use-package flycheck-eglot
-        :after (flycheck eglot)
-        :custom (flycheck-eglot-exclusive nil)
-        :config
-        (global-flycheck-eglot-mode 1))
+  (use-package flycheck-eglot
+    :ensure t
+    :after (flycheck eglot)
+    :custom (flycheck-eglot-exclusive nil)
+    :config
+    (global-flycheck-eglot-mode 1))
 #+end_src
 
 or in a major mode hook:
 
 #+begin_src elisp
-      (use-package python-mode
-        :hook (python-mode . (lambda ()
-                               (setq flycheck-eglot-exclusive nil)
-                               (eglot-ensure))))
+  (use-package python-mode
+    :hook (python-mode . (lambda ()
+                           (setq flycheck-eglot-exclusive nil)
+                           (eglot-ensure))))
 #+end_src
 
 
