@@ -23,7 +23,7 @@ A more advanced way is with a package management tool that can install directly 
 
 ** MELPA (recommended)
 
-You can install this package from [[https://melpa.org][MELPA]] manually using the standard package manager ~M-x package-install RET flycheck-eglot RET~ or install and configure it [[Using use-package][using use-package]].
+You can install this package from [[https://melpa.org][MELPA]] manually using the standard package manager ~M-x package-install RET flycheck-eglot RET~ or install and configure it [[https://github.com/intramurz/flycheck-eglot#using-use-package][using use-package]].
 
 
 * Configuration and Use
