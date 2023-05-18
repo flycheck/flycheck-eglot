@@ -81,6 +81,82 @@
 
 (defvar-local flycheck-eglot--current-errors nil)
 
+(defface flycheck-error-eglot-unnecessary
+  '((t (:inherit (flycheck-error eglot-diagnostic-tag-unnecessary-face))))
+  ".")
+(defface flycheck-warning-eglot-unnecessary
+  '((t (:inherit (flycheck-warning eglot-diagnostic-tag-unnecessary-face))))
+  ".")
+(defface flycheck-info-eglot-unnecessary
+  '((t (:inherit (flycheck-info eglot-diagnostic-tag-unnecessary-face))))
+  ".")
+(defface flycheck-error-eglot-deprecated
+  '((t (:inherit (flycheck-error eglot-diagnostic-tag-deprecated-face))))
+  ".")
+(defface flycheck-warning-eglot-deprecated
+  '((t (:inherit (flycheck-warning eglot-diagnostic-tag-deprecated-face))))
+  ".")
+(defface flycheck-info-eglot-deprecated
+  '((t (:inherit (flycheck-info eglot-diagnostic-tag-deprecated-face))))
+  ".")
+
+
+(defun flycheck-eglot--define-tag-levels ()
+  "."
+  (setf (get 'flycheck-error-eglot-unnecessary-overlay 'face) 'flycheck-error-eglot-unnecessary)
+  (setf (get 'flycheck-error-eglot-unnecessary-overlay 'priority) 110)
+  (flycheck-define-error-level 'error-eglot-unnecessary
+    :severity 100
+    :compilation-level 2
+    :overlay-category 'flycheck-error-eglot-unnecessary-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+    :fringe-face 'flycheck-fringe-error
+    :error-list-face 'flycheck-error-list-error)
+  (setf (get 'flycheck-warning-eglot-unnecessary-overlay 'face) 'flycheck-warning-eglot-unnecessary)
+  (setf (get 'flycheck-warning-eglot-unnecessary-overlay 'priority) 100)
+  (flycheck-define-error-level 'warning-eglot-unnecessary
+    :severity 10
+    :compilation-level 1
+    :overlay-category 'flycheck-warning-eglot-unnecessary-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+    :fringe-face 'flycheck-fringe-warning
+    :error-list-face 'flycheck-error-list-warning)
+  (setf (get 'flycheck-info-eglot-unnecessary-overlay 'face) 'flycheck-warning-eglot-unnecessary)
+  (setf (get 'flycheck-info-eglot-unnecessary-overlay 'priority) 90)
+  (flycheck-define-error-level 'warning-eglot-unnecessary
+    :severity -10
+    :compilation-level 0
+    :overlay-category 'flycheck-info-eglot-unnecessary-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+    :fringe-face 'flycheck-fringe-info
+    :error-list-face 'flycheck-error-list-info)
+  (setf (get 'flycheck-error-eglot-deprecated-overlay 'face) 'flycheck-error-eglot-deprecated)
+  (setf (get 'flycheck-error-eglot-deprecated-overlay 'priority) 110)
+  (flycheck-define-error-level 'error-eglot-deprecated
+    :severity 100
+    :compilation-level 2
+    :overlay-category 'flycheck-error-eglot-deprecated-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+    :fringe-face 'flycheck-fringe-error
+    :error-list-face 'flycheck-error-list-error)
+  (setf (get 'flycheck-warning-eglot-deprecated-overlay 'face) 'flycheck-warning-eglot-deprecated)
+  (setf (get 'flycheck-warning-eglot-deprecated-overlay 'priority) 100)
+  (flycheck-define-error-level 'warning-eglot-deprecated
+    :severity 10
+    :compilation-level 1
+    :overlay-category 'flycheck-warning-eglot-deprecated-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+    :fringe-face 'flycheck-fringe-warning
+    :error-list-face 'flycheck-error-list-warning)
+  (setf (get 'flycheck-info-eglot-deprecated-overlay 'face) 'flycheck-warning-eglot-deprecated)
+  (setf (get 'flycheck-info-eglot-deprecated-overlay 'priority) 90)
+  (flycheck-define-error-level 'info-eglot-deprecated
+    :severity -10
+    :compilation-level 0
+    :overlay-category 'flycheck-info-eglot-deprecated-overlay
+    :fringe-bitmap 'flycheck-fringe-bitmap-double-arrow
+    :fringe-face 'flycheck-fringe-info
+    :error-list-face 'flycheck-error-list-info))
 
 (defun flycheck-eglot--start (checker callback)
   "Start function for generic checker definition.
@@ -92,25 +168,45 @@ CALLBACK is a callback function provided by Flycheck."
              flycheck-eglot--current-errors)))
 
 
+(flymake--diag-accessor flymake-diagnostic-overlay-properties flymake--diag-overlay-properties overlay-properties)
+
+
 (defun flycheck-eglot--report-eglot-diagnostics (diags &rest _)
   "Report function for the `eglot-flymake-backend'.
 DIAGS is the Eglot diagnostics list in Flymake format."
   (cl-flet
       ((diag-to-err (diag)
                     ;; Translate flymake to flycheck
-                    (with-current-buffer (flymake-diagnostic-buffer diag)
-                      (flycheck-error-new-at-pos
-                       (flymake-diagnostic-beg diag) ; POS
-                       (pcase (flymake-diagnostic-type diag) ; LEVEL
-                         ('eglot-note 'info)
-                         ('eglot-warning 'warning)
-                         ('eglot-error 'error)
-                         (_ (error "Unknown diagnostic type: %S" diag)))
-                       (flymake-diagnostic-text diag)  ; MESSAGE
-                       :end-pos (flymake-diagnostic-end diag)
-                       :checker 'eglot-check
-                       :buffer (current-buffer)
-                       :filename (buffer-file-name)))))
+         (let* ((overlay-props (flymake-diagnostic-overlay-properties diag))
+                (tag-face (first (alist-get 'face overlay-props)))
+                (diagnostic-type (flymake-diagnostic-type diag))
+                (level (pcase tag-face
+                         ('eglot-diagnostic-tag-deprecated-face
+                          (pcase diagnostic-type
+                            ('eglot-note 'info-eglot-deprecated)
+                            ('eglot-warning 'warning-eglot-deprecated)
+                            ('eglot-error 'error-eglot-deprecated)
+                            (_ (error "Unknown diagnostic type: %S" diag))))
+                         ('eglot-diagnostic-tag-unnecessary-face
+                          (pcase diagnostic-type
+                            ('eglot-note 'info-eglot-unnecessary)
+                            ('eglot-warning 'warning-eglot-unnecessary)
+                            ('eglot-error 'error-eglot-unnecessary)
+                            (_ (error "Unknown diagnostic type: %S" diag))))
+                         (_ (pcase diagnostic-type
+                              ('eglot-note 'info)
+                              ('eglot-warning 'warning)
+                              ('eglot-error 'error)
+                              (_ (error "Unknown diagnostic type: %S" diag)))))))
+           (with-current-buffer (flymake-diagnostic-buffer diag)
+             (flycheck-error-new-at-pos
+              (flymake-diagnostic-beg diag) ; POS
+              level
+              (flymake-diagnostic-text diag)  ; MESSAGE
+              :end-pos (flymake-diagnostic-end diag)
+              :checker 'eglot-check
+              :buffer (current-buffer)
+              :filename (buffer-file-name))))))
 
     (setq flycheck-eglot--current-errors
           (mapcar #'diag-to-err diags))
@@ -133,6 +229,7 @@ DIAGS is the Eglot diagnostics list in Flymake format."
 (defun flycheck-eglot--setup ()
   "Setup flycheck-eglot."
   (when (flycheck-eglot--eglot-available-p)
+    (flycheck-eglot--define-tag-levels)
     (add-to-list 'flycheck-checkers 'eglot-check)
     (setq flycheck-disabled-checkers
           (remove 'eglot-check
