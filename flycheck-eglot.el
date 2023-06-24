@@ -92,6 +92,17 @@ CALLBACK is a callback function provided by Flycheck."
              flycheck-eglot--current-errors)))
 
 
+(defun flycheck-eglot--get-error-level (diag)
+  "Select or create (if necessary) a flycheck error level.
+DIAG is the Eglot diagnostics in Flymake format."
+  (let ((level (pcase (flymake-diagnostic-type diag)
+                 ('eglot-note 'info)
+                 ('eglot-warning 'warning)
+                 ('eglot-error 'error)
+                 (_ (error "Unknown diagnostic type: %S" diag)))))
+    level))
+
+
 (defun flycheck-eglot--report-eglot-diagnostics (diags &rest _)
   "Report function for the `eglot-flymake-backend'.
 DIAGS is the Eglot diagnostics list in Flymake format."
@@ -101,11 +112,7 @@ DIAGS is the Eglot diagnostics list in Flymake format."
                     (with-current-buffer (flymake-diagnostic-buffer diag)
                       (flycheck-error-new-at-pos
                        (flymake-diagnostic-beg diag) ; POS
-                       (pcase (flymake-diagnostic-type diag) ; LEVEL
-                         ('eglot-note 'info)
-                         ('eglot-warning 'warning)
-                         ('eglot-error 'error)
-                         (_ (error "Unknown diagnostic type: %S" diag)))
+                       (flycheck-eglot--get-error-level diag) ; LEVEL
                        (flymake-diagnostic-text diag)  ; MESSAGE
                        :end-pos (flymake-diagnostic-end diag)
                        :checker 'eglot-check
