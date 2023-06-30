@@ -79,6 +79,28 @@
   :group 'flycheck-eglot)
 
 
+(defcustom flycheck-eglot-enable-diagnostic-tags t
+  "Enable display of diagnostic tags."
+  :type 'boolean
+  :group 'flycheck-eglot)
+
+
+(defvar flycheck-eglot-tag-labels
+  '((deprecated . "*")
+    (unnecessary . "?"))
+  "Diagnostic tag labels.")
+
+
+(defvar flycheck-eglot-level-tag-separator
+  ":"
+  "Separator between the level name and diagnostic tag labels.")
+
+
+(defvar flycheck-eglot-tag-separator
+  ""
+  "Diagnostic tag label separator.")
+
+
 (defvar-local flycheck-eglot--current-errors nil)
 
 
@@ -92,6 +114,10 @@ CALLBACK is a callback function provided by Flycheck."
              flycheck-eglot--current-errors)))
 
 
+(flymake--diag-accessor flymake-diagnostic-overlay-properties
+                        flymake--diag-overlay-properties overlay-properties)
+
+
 (defun flycheck-eglot--get-error-level (diag)
   "Select or create (if necessary) a flycheck error level.
 DIAG is the Eglot diagnostics in Flymake format."
@@ -99,8 +125,51 @@ DIAG is the Eglot diagnostics in Flymake format."
                  ('eglot-note 'info)
                  ('eglot-warning 'warning)
                  ('eglot-error 'error)
-                 (_ (error "Unknown diagnostic type: %S" diag)))))
-    level))
+                 (_ (error "Unknown diagnostic type: %S" diag))))
+        (overlay-props (flymake-diagnostic-overlay-properties diag)))
+    (if (and flycheck-eglot-enable-diagnostic-tags
+             overlay-props)
+        (let* ((faces (alist-get 'face overlay-props))
+               (tags (mapcar
+                      (lambda (face)
+                        (pcase face
+                          ('eglot-diagnostic-tag-unnecessary-face 'unnecessary)
+                          ('eglot-diagnostic-tag-deprecated-face 'deprecated)
+                          (_ (error "Unknown eglot face: %S" face))))
+                      faces))
+               (name (format "%s%s%s"
+                             level
+                             flycheck-eglot-level-tag-separator
+                             (mapconcat (lambda (tag)
+                                          (alist-get tag flycheck-eglot-tag-labels))
+                                        tags flycheck-eglot-tag-separator))))
+
+          (or (intern-soft name)
+              (let* ((new-level (intern name))
+                     (face (get (flycheck-error-level-overlay-category level)
+                                'face))
+                     (faces (append faces
+                                    (list face)))
+                     (priority (get (flycheck-error-level-overlay-category level)
+                                    'priority))
+                     (bitmaps (cons (flycheck-error-level-fringe-bitmap level)
+                                    (flycheck-error-level-fringe-bitmap level t)))
+                     (category (intern (format "%s-category" name))))
+
+                (setf (get category 'face) faces)
+                (setf (get category 'priority) priority)
+
+                (flycheck-define-error-level new-level
+                  :severity (flycheck-error-level-severity level)
+                  :compilation-level (flycheck-error-level-compilation-level level)
+                  :overlay-category category
+                  :fringe-bitmap bitmaps
+                  :fringe-face (flycheck-error-level-fringe-face level)
+                  :margin-spec (flycheck-error-level-margin-spec level)
+                  :error-list-face (flycheck-error-level-error-list-face level))
+
+                new-level)))
+      level)))
 
 
 (defun flycheck-eglot--report-eglot-diagnostics (diags &rest _)

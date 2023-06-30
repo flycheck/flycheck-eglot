@@ -92,6 +92,15 @@ or in a major mode hook:
 
 You can enable ~global-flycheck-eglot-mode~ by default, or change the ~flycheck-eglot-exclusive~ default value using Customize (if you like that way).
 
+
+* Support for diagnostic tags
+
+Diagnostic tags are supported (according to the LSP protocol [[https://microsoft.github.io/language-server-protocol/specifications/lsp/3.18/specification/#diagnosticTag][specification]]). Tagged diagnostics are decorated in a special way when displaying the source code. You can toggle this feature with the ~flycheck-eglot-enable-diagnostic-tags~ custom variable.
+
+Some technical notes on the feature. The implementation creates auxiliary "tagged" error levels ([[https://github.com/emacs-lsp/lsp-mode][lsp-mode]] uses the same approach). By default, these extra levels are named like ~level:tags~, where ~level~ is the name of the /base level/ (~error~, ~warning~, or ~info~), and ~tags~ are the /tag labels/: ~?~ for ~unnessesary~, ~*~ for ~deprecated~, or both. You can try tweaking the ~flycheck-eglot-tag-labels~, ~flycheck-eglot-level-tag-separator~ and ~flycheck-eglot-tag-separator~ variables and get something like ~error-unnessesary-deprecated~ (is that even possible?)
+
+The feature is not critical (and not even extremely useful): if it causes problems or you don't like it, you can turn it off.
+
 * Notes
 
 Flycheck-Eglot mode automatically enables Flycheck and disables Flymake.
@@ -114,3 +123,5 @@ I suppose my contribution can be brought back into the Doom Emacs (if deemed use
 #+end_src
 
 to the its =lisp/packages.el= file (once again, I'm not a Doom Emacs user).
+
+Thanks to [[https://github.com/p00f][p00f]] for suggesting the implementation of diagnostic tags and for the early prototype.
