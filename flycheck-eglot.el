@@ -6,7 +6,7 @@
 ;; Maintainer: Sergey Firsov <intramurz@gmail.com>
 ;; Version: 0.1
 ;; Package-Requires: ((emacs "28.1") (eglot "1.9") (flycheck "32"))
-;; URL: https://github.com/intramurz/flycheck-eglot
+;; URL: https://github.com/flycheck/flycheck-eglot
 ;; Keywords: convenience language tools
 
 
@@ -56,7 +56,7 @@
 ;; By default, the Flycheck-Eglot considers the Eglot to be the only provider
 ;; of syntax checks.  Other Flycheck checkers are ignored.
 ;; There is a variable `flycheck-eglot-exclusive' that controls this.
-;; You can override it system wide or for some major modes.
+;; You can override it system-wide or for some major modes.
 
 ;;; Code:
 
