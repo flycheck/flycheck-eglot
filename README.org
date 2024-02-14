@@ -125,3 +125,10 @@ I suppose my contribution can be brought back into the Doom Emacs (if deemed use
 to the its =lisp/packages.el= file (once again, I'm not a Doom Emacs user).
 
 Thanks to [[https://github.com/p00f][p00f]] for suggesting the implementation of diagnostic tags and for the early prototype.
+
+* License
+
+Flycheck-Elgot is distributed under the GNU General Public License, version 3.
+
+This package has its origin in a piece of Doom Emacs code,
+which was distributed under the MIT License (MIT).
