@@ -15,7 +15,7 @@ You can simply copy =flycheck-eglot.el= to your local filesystem, and add the pa
 A more advanced way is with a package management tool that can install directly from Github repositories, such as [[https://github.com/quelpa/quelpa][quelpa]]. Evaluate this or add to your init file:
 
 #+begin_src elisp
-      (quelpa '(flycheck-eglot :repo "intramurz/flycheck-eglot"
+      (quelpa '(flycheck-eglot :repo "flycheck/flycheck-eglot"
                                :fetcher github
                                :upgrade t))
 #+end_src
@@ -119,7 +119,7 @@ I suppose my contribution can be brought back into the Doom Emacs (if deemed use
 
 #+begin_src elisp
     (package! flycheck-eglot
-              :recipe (:host github :repo "intramurz/flycheck-eglot"))
+              :recipe (:host github :repo "flycheck/flycheck-eglot"))
 #+end_src
 
 to the its =lisp/packages.el= file (once again, I'm not a Doom Emacs user).
