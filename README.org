@@ -113,16 +113,7 @@ Along the way, I've added a few changes to make it easier to use, and slightly r
 
 * Sources of inspiration
 
-This software has its origin in [[https://github.com/doomemacs/doomemacs/blob/develop/modules/tools/lsp/autoload/flycheck-eglot.el][this piece]] of Doom Emacs code with a similar purpose. Many thanks to its authors for their efforts.
-
-I suppose my contribution can be brought back into the Doom Emacs (if deemed useful) by adding something like
-
-#+begin_src elisp
-    (package! flycheck-eglot
-              :recipe (:host github :repo "flycheck/flycheck-eglot"))
-#+end_src
-
-to the its =lisp/packages.el= file (once again, I'm not a Doom Emacs user).
+This package has its origin in [[https://github.com/doomemacs/doomemacs/blob/aa54383b5d30d9e1a275b27244335a5aa6114318/modules/tools/lsp/autoload/flycheck-eglot.el][this module]] of Doom Emacs code with a similar purpose. Many thanks to its authors for their efforts. Today Doom Emacs uses our package instead.
 
 Thanks to [[https://github.com/p00f][p00f]] for suggesting the implementation of diagnostic tags and for the early prototype.
 
