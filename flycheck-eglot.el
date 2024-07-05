@@ -206,6 +206,21 @@ DIAGS is the Eglot diagnostics list in Flymake format."
   :modes '(prog-mode text-mode))
 
 
+(defun flycheck-eglot--flymake-diagnostics-wrapper (orig &optional beg end)
+  "Does the job of the `flymake-diagnostic' when it can't.
+ORIG is the original function, (BEG END) is the range"
+  (if (not flycheck-eglot-mode)
+      (funcall orig beg end)
+    (cl-remove-if-not (lambda (s)
+                        (cond (end (<= beg
+                                       (flymake-diagnostic-beg s)
+                                       (flymake-diagnostic-end s)
+                                       end))
+                              (beg (= beg (flymake-diagnostic-beg s)))
+                              (t t)))
+                      eglot--diagnostics)))
+
+
 (defun flycheck-eglot--setup ()
   "Setup flycheck-eglot."
   (when (flycheck-eglot--eglot-available-p)
@@ -221,6 +236,7 @@ DIAGS is the Eglot diagnostics list in Flymake format."
         (unless (eq current-checker 'eglot-check)
           (flycheck-add-next-checker 'eglot-check current-checker))))
     (eglot-flymake-backend #'flycheck-eglot--report-eglot-diagnostics)
+    (advice-add #'flymake-diagnostics :around #'flycheck-eglot--flymake-diagnostics-wrapper)
     (flymake-mode -1)
     (flycheck-mode 1)))
 
