@@ -216,6 +216,7 @@ DIAGS is the Eglot diagnostics list in Flymake format."
     (flycheck-mode 1)))
 
 (defun flycheck-eglot--register-eglot-checker (mode)
+  "Register `eglot-check' for major mode MODE."
   (add-to-list 'flycheck-checkers 'eglot-check t)
   (unless (member mode (flycheck-checker-get 'eglot-check 'modes))
     (flycheck-add-mode 'eglot-check mode))
