@@ -221,9 +221,11 @@ DIAGS is the Eglot diagnostics list in Flymake format."
     (flycheck-add-mode 'eglot-check mode))
   (if flycheck-eglot-exclusive
       (setf (flycheck-checker-get 'eglot-check 'next-checkers) nil)
-    (cl-loop for checker in flycheck-checkers
-             when (flycheck-checker-supports-major-mode-p checker mode)
-             do (flycheck-add-next-checker 'eglot-check checker) (cl-return))))
+    (when-let ((checker (cl-find-if (lambda (checker)
+                                      (and (not (eq checker 'eglot-check))
+                                           (flycheck-checker-supports-major-mode-p checker mode)))
+                                    flycheck-checkers)))
+      (flycheck-add-next-checker 'eglot-check checker))))
 
 (defun flycheck-eglot--teardown ()
   "Teardown flycheck-eglot."
