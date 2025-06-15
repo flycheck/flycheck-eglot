@@ -218,7 +218,8 @@ ORIG is the original function, (BEG END) is the range"
                                        end))
                               (beg (= beg (flymake-diagnostic-beg s)))
                               (t t)))
-                      eglot--diagnostics)))
+                      ;; `eglot--diagnostics' was a list before, but it is now a cons after Emacs 31.
+                      (if (consp eglot--diagnostics) (car eglot--diagnostics) eglot--diagnostics))))
 
 
 (defun flycheck-eglot--setup ()
