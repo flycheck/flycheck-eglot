@@ -4,7 +4,7 @@
 
 ;; Author: Sergey Firsov <intramurz@gmail.com>
 ;; Maintainer: Sergey Firsov <intramurz@gmail.com>
-;; Version: 0.1
+;; Version: 1.0
 ;; Package-Requires: ((emacs "28.1") (eglot "1.9") (flycheck "32"))
 ;; URL: https://github.com/flycheck/flycheck-eglot
 ;; Keywords: convenience language tools
