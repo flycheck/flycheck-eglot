@@ -1,6 +1,6 @@
 #+TITLE: flycheck-eglot
 #+AUTHOR: Sergey Firsov <intramurz@gmail.com>
-[[https://melpa.org/#/flycheck-eglot][file:https://melpa.org/packages/flycheck-eglot-badge.svg]]
+[[https://melpa.org/#/flycheck-eglot][file:https://melpa.org/packages/flycheck-eglot-badge.svg]]     [[https://stable.melpa.org/#/flycheck-eglot][file:https://stable.melpa.org/packages/flycheck-eglot-badge.svg]]
 
 A simple "glue" minor mode that allows [[https://www.flycheck.org/][Flycheck]] and [[https://github.com/joaotavora/eglot][Eglot]] to work together. Thus, the Flycheck frontend can display the results of syntactic checks performed by the LSP server.
 
