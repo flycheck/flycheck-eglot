@@ -172,24 +172,51 @@ DIAG is the Eglot diagnostics in Flymake format."
       level)))
 
 
-(defun flycheck-eglot--report-eglot-diagnostics (diags &rest _)
+(defun flycheck-eglot--report-eglot-diagnostics (diags &rest args)
   "Report function for the `eglot-flymake-backend'.
 DIAGS is the Eglot diagnostics list in Flymake format."
-  (cl-flet
-      ((diag-to-err (diag)
-                    ;; Translate flymake to flycheck
-                    (with-current-buffer (flymake-diagnostic-buffer diag)
-                      (flycheck-error-new-at-pos
-                       (flymake-diagnostic-beg diag) ; POS
-                       (flycheck-eglot--get-error-level diag) ; LEVEL
-                       (flymake-diagnostic-text diag)  ; MESSAGE
-                       :end-pos (flymake-diagnostic-end diag)
-                       :checker 'eglot-check
-                       :buffer (current-buffer)
-                       :filename (buffer-file-name)))))
+  (let ((new-diags (mapcar (lambda (diag)
+                             ;; Translate flymake--diag to flycheck-error struct
+                             (with-current-buffer (flymake-diagnostic-buffer diag)
+                               (flycheck-error-new-at-pos
+                                (flymake-diagnostic-beg diag) ; POS
+                                (flycheck-eglot--get-error-level diag) ; LEVEL
+                                (flymake-diagnostic-text diag)  ; MESSAGE
+                                :end-pos (flymake-diagnostic-end diag)
+                                :checker 'eglot-check
+                                :buffer (current-buffer)
+                                :filename (buffer-file-name))))
+                           diags)))
 
-    (setq flycheck-eglot--current-errors
-          (mapcar #'diag-to-err diags))
+    (when-let* ((reg (plist-get args :region))
+                (beg (car reg))
+                (end (cdr reg)))
+
+      (setq flycheck-eglot--current-errors
+            (cond ((and (= beg (point-min)) (= end (point-max))) new-diags)
+
+                  ((and (= beg (point-min)) (= end (point-min)))
+                   (append flycheck-eglot--current-errors new-diags))
+
+                  ;; The default case never seems to appear in the context of interactions with eglot.
+                  ;; Most likely, this is dead code.
+                  ;; But the :region parameter specification for flymake report functions
+                  ;; requires this behavior. So be it.
+                  (t (append (cl-remove-if (lambda (err)
+                                             (let* ((line (flycheck-error-line err))
+                                                    (col (flycheck-error-column err))
+                                                    (end-line (or (flycheck-error-end-line err)
+                                                                  line))
+                                                    (end-col (or (flycheck-error-end-column err)
+                                                                 col))
+                                                    (err-beg (flycheck-line-column-to-position line col))
+                                                    (err-end (flycheck-line-column-to-position end-line end-col)))
+
+                                               (or (> beg err-beg)
+                                                   (< end err-end))))
+                                           flycheck-eglot--current-errors)
+                             new-diags)))))
+
     (flycheck-buffer-automatically '(idle-change new-line))))
 
 
