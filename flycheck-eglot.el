@@ -217,7 +217,7 @@ DIAGS is the Eglot diagnostics list in Flymake format."
                                            flycheck-eglot--current-errors)
                              new-diags)))))
 
-    (flycheck-buffer-automatically '(idle-change new-line))))
+    (flycheck-buffer-automatically)))
 
 
 (defun flycheck-eglot--eglot-available-p ()
