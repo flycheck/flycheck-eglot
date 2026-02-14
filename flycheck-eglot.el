@@ -214,9 +214,9 @@ DIAGS is the Eglot diagnostics list in Flymake format."
                                                       :checker 'eglot-check
                                                       :buffer (current-buffer)
                                                       :filename (buffer-file-name))))
-                                                 flycheck-eglot--current-diags)))
+                                                 flycheck-eglot--current-diags))
 
-  (flycheck-buffer-automatically '(idle-change new-line)))
+    (flycheck-buffer-automatically)))
 
 
 (defun flycheck-eglot--eglot-available-p ()
