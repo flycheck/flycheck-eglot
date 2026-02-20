@@ -105,12 +105,26 @@
 
 (defvar-local flycheck-eglot--current-diags nil)
 
+(defvar-local flycheck-eglot--can-run-flymake-backend-p t)
+
+(defvar-local flycheck-eglot--can-run-flycheck-auto-p t)
+
+(defun flycheck-eglot-disable-diagnostics-pull ()
+  "Disable diagnostics pull."
+  (setq flycheck-eglot--can-run-flymake-backend-p nil))
+
+(defun flycheck-eglot-enable-diagnostics-pull ()
+  "Enable diagnostics pull."
+  (setq flycheck-eglot--can-run-flymake-backend-p t))
 
 (defun flycheck-eglot--start (checker callback)
   "Start function for generic checker definition.
 CHECKER is the current checker (assuming eglot-check).
 CALLBACK is a callback function provided by Flycheck."
   (when (eq checker 'eglot-check)
+    (when flycheck-eglot--can-run-flymake-backend-p
+      (let ((flycheck-eglot--can-run-flycheck-auto-p nil))
+        (eglot-flymake-backend #'flycheck-eglot--report-eglot-diagnostics)))
     (funcall callback
              'finished
              flycheck-eglot--current-errors)))
@@ -214,9 +228,11 @@ DIAGS is the Eglot diagnostics list in Flymake format."
                                                       :checker 'eglot-check
                                                       :buffer (current-buffer)
                                                       :filename (buffer-file-name))))
-                                                 flycheck-eglot--current-diags))
+                                                 flycheck-eglot--current-diags)))
 
-    (flycheck-buffer-automatically)))
+  (when flycheck-eglot--can-run-flycheck-auto-p
+    (let ((flycheck-eglot--can-run-flymake-backend-p nil))
+      (flycheck-buffer-automatically))))
 
 
 (defun flycheck-eglot--eglot-available-p ()
