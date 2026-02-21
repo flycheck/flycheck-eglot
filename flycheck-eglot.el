@@ -272,7 +272,8 @@ ORIG is the original function, (BEG END) is the range"
     ;; `eglot-flymake-backend' already checks this internally, but
     ;; doing it here avoids the overhead of calling the backend on
     ;; every flycheck cycle for push-only servers.
-    (unless (eglot-server-capable :diagnosticProvider)
+    (unless (or (eglot-server-capable :diagnosticProvider)
+                (eglot-server-capable :$streamingDiagnosticsProvider))
       (setq flycheck-eglot--can-run-flymake-backend-p nil))
     (eglot-flymake-backend #'flycheck-eglot--report-eglot-diagnostics)
     (advice-add #'flymake-diagnostics :around #'flycheck-eglot--flymake-diagnostics-wrapper)
