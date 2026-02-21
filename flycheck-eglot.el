@@ -122,7 +122,12 @@
 CHECKER is the current checker (assuming eglot-check).
 CALLBACK is a callback function provided by Flycheck."
   (when (eq checker 'eglot-check)
-    (when flycheck-eglot--can-run-flymake-backend-p
+    ;; Only attempt pull diagnostics when the server advertises the
+    ;; capability.  Push-only servers deliver diagnostics in real-time
+    ;; via the callback registered in `flycheck-eglot--setup', so the
+    ;; pull here is unnecessary for them.
+    (when (and flycheck-eglot--can-run-flymake-backend-p
+               (eglot--server-capable :diagnosticProvider))
       (let ((flycheck-eglot--can-run-flycheck-auto-p nil))
         (eglot-flymake-backend #'flycheck-eglot--report-eglot-diagnostics)))
     (funcall callback
