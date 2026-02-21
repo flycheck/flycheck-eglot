@@ -268,6 +268,12 @@ ORIG is the original function, (BEG END) is the range"
   (when (flycheck-eglot--eglot-available-p)
     (flycheck-eglot--register-eglot-checker major-mode)
     (setq flycheck-checker 'eglot-check)
+    ;; Auto-detect pull diagnostic support once at setup time.
+    ;; `eglot-flymake-backend' already checks this internally, but
+    ;; doing it here avoids the overhead of calling the backend on
+    ;; every flycheck cycle for push-only servers.
+    (unless (eglot-server-capable :diagnosticProvider)
+      (setq flycheck-eglot--can-run-flymake-backend-p nil))
     (eglot-flymake-backend #'flycheck-eglot--report-eglot-diagnostics)
     (advice-add #'flymake-diagnostics :around #'flycheck-eglot--flymake-diagnostics-wrapper)
     (flymake-mode -1)
