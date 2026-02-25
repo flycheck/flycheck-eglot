@@ -100,9 +100,6 @@
   ""
   "Diagnostic tag label separator.")
 
-
-(defvar-local flycheck-eglot--current-errors nil)
-
 (defvar-local flycheck-eglot--current-diags nil)
 
 (defvar-local flycheck-eglot--can-run-flymake-backend-p t)
@@ -127,7 +124,7 @@ CALLBACK is a callback function provided by Flycheck."
         (eglot-flymake-backend #'flycheck-eglot--report-eglot-diagnostics)))
     (funcall callback
              'finished
-             flycheck-eglot--current-errors)))
+             (flycheck-eglot--diags-to-error-list flycheck-eglot--current-diags))))
 
 
 (flymake--diag-accessor flymake-diagnostic-overlay-properties
@@ -215,24 +212,29 @@ DIAGS is the Eglot diagnostics list in Flymake format."
                                              (or (> beg diag-beg)
                                                  (< end diag-end))))
                                          flycheck-eglot--current-diags)
-                           diags))))
-
-    (setq flycheck-eglot--current-errors (mapcar (lambda (diag)
-                                                   ;; Translate flymake--diag to flycheck-error struct
-                                                   (with-current-buffer (flymake-diagnostic-buffer diag)
-                                                     (flycheck-error-new-at-pos
-                                                      (flymake-diagnostic-beg diag) ; POS
-                                                      (flycheck-eglot--get-error-level diag) ; LEVEL
-                                                      (flymake-diagnostic-text diag)  ; MESSAGE
-                                                      :end-pos (flymake-diagnostic-end diag)
-                                                      :checker 'eglot-check
-                                                      :buffer (current-buffer)
-                                                      :filename (buffer-file-name))))
-                                                 flycheck-eglot--current-diags)))
+                           diags)))))
 
   (when flycheck-eglot--can-run-flycheck-auto-p
     (let ((flycheck-eglot--can-run-flymake-backend-p nil))
       (flycheck-buffer-automatically))))
+
+
+(defun flycheck-eglot--diags-to-error-list (diags)
+  "Convert the list of diagnostics in Flymake format
+to a list of errors in Flycheck format.
+DIAGS is the diagnostics list in Flymake format."
+  (mapcar (lambda (diag)
+            ;;
+            (with-current-buffer (flymake-diagnostic-buffer diag)
+              (flycheck-error-new-at-pos
+               (flymake-diagnostic-beg diag) ; POS
+               (flycheck-eglot--get-error-level diag) ; LEVEL
+               (flymake-diagnostic-text diag)  ; MESSAGE
+               :end-pos (flymake-diagnostic-end diag)
+               :checker 'eglot-check
+               :buffer (current-buffer)
+               :filename (buffer-file-name))))
+          diags))
 
 
 (defun flycheck-eglot--eglot-available-p ()
@@ -298,7 +300,7 @@ ORIG is the original function, (BEG END) is the range"
   (when (flycheck-eglot--eglot-available-p)
     (eglot-flymake-backend #'ignore)
     (setq flycheck-checker nil)
-    (setq flycheck-eglot--current-errors nil)
+    (setq flycheck-eglot--current-diags nil)
     (flycheck-buffer-deferred)))
 
 
