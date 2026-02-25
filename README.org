@@ -88,6 +88,8 @@ or in a major mode hook:
 #+end_src
 
 
+A possible application of this scenario is a low-cost replacement for an LSP multiplexer (in certain cases). For example, the main error checking is performed by the LSP (as well as much else), while specialized linters (say, coding standards compliance checking) are connected via regular checkers.
+
 ** With Customize interface
 
 You can enable ~global-flycheck-eglot-mode~ by default, or change the ~flycheck-eglot-exclusive~ default value using Customize (if you like that way).
@@ -100,6 +102,24 @@ Diagnostic tags are supported (according to the LSP protocol [[https://microsoft
 Some technical notes on the feature. The implementation creates auxiliary "tagged" error levels ([[https://github.com/emacs-lsp/lsp-mode][lsp-mode]] uses the same approach). By default, these extra levels are named like ~level:tags~, where ~level~ is the name of the /base level/ (~error~, ~warning~, or ~info~), and ~tags~ are the /tag labels/: ~?~ for ~unnessesary~, ~*~ for ~deprecated~, or both. You can try tweaking the ~flycheck-eglot-tag-labels~, ~flycheck-eglot-level-tag-separator~ and ~flycheck-eglot-tag-separator~ variables and get something like ~error-unnessesary-deprecated~ (is that even possible?)
 
 The feature is not critical (and not even extremely useful): if it causes problems or you don't like it, you can turn it off.
+
+
+* About push and pull.
+
+~flycheck~ is most often used in automatic mode. The default settings are usually reasonable and convenient, but can they be changed? Let's say you get diagnostics on the fly, but you only want the check to run when you save the file. How configurable is this when using ~flycheck-eglot~? (The short answer is: /not very/. Do you really need it?)
+
+In the typical case, when exactly ~flycheck~ performs automatic checks depends on the list of conditions in ~flycheck-check-syntax-automatically~. In the case of ~flycheck-eglot~, this is generally not true. To understand when and what ~flycheck-check-syntax-automatically~ affects, let's recall how LSPs provide code diagnostics.
+
+Diagnostics from LSPs can be obtained via /pull/ (i.e., upon request from the client) or via /push/ (initiated by the server). Accordingly, from this perspective, all LSPs can be divided into pull-based, push-based, and mixed cases. The conditions in ~flycheck-check-syntax-automatically~ only affect the retrieval of pull-based diagnostics. Therefore, if you still want to try customizing something, first and foremost: *know your LSP*.
+
+1. In the case of a purely *push-based* LSP, changes to the ~flycheck-check-syntax-automatically~ settings do not affect ~flycheck-eglot~. Anything can only be customized at the LSP configuration level (if the LSP allows it). This seems to be the most common case of LSP. Examples: /clangd/ (C/C++), /basedpyright/ (Python), /typescript-language-server/ and others.
+
+2. In the case of a purely *pull-based* LSP, ~flycheck-eglot~ behaves like a regular checker. Changes to the ~flycheck-check-syntax-automatically~ settings work as expected. Example: /ty/ (Python).
+
+3. In the *mixed case* (both pull and push), there is a risk of collisions. If something goes wrong, it might be worth manually suppressing diagnostic pulls using ~flycheck-eglot-disable-diagnostics-pull~ (the easiest way is in a hook). This is highly recommended for /rust-analyzer/ (which is an example).
+
+All of the above also applies to manually retrieving diagnostics using ~M-x flycheck-buffer~. Regular checkers in the chain (if any) depend on the ~flycheck-check-syntax-automatically~ settings in the usual way.
+
 
 * Notes
 
